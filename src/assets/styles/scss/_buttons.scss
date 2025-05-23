@@ -1,0 +1,55 @@
+// src/assets/styles/scss/_buttons.scss
+
+@use "./typography" as *;
+@use "./colors" as *;
+@use "./medias" as *;
+
+.btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: max-content;
+    border-radius: 2.5rem;
+    background-color: transparent;
+    border: none;
+    text-decoration: none;
+    cursor: pointer;
+    padding: 0.875rem 2rem;
+    @include font-primaria(1.25rem, 400, 0);
+    transition: all 0.4s;
+
+    svg {
+        margin-right: 0.5rem;
+        padding-top: 0.05rem;
+    }
+
+    &__primary {
+        background-color: $secondary;
+        color: $white;
+
+        @include mediaHover {
+            &:hover {
+                opacity: 0.7;
+                transition: all 0.4s;
+            }
+        }
+
+        @include mobile {
+            width: 100%;
+        }
+    }
+
+    &__outline__primary {
+        background-color: $white;
+        color: $secondary;
+        border: 0.0625rem solid $secondary;
+
+        @include mediaHover {
+            &:hover {
+                background-color: $secondary;
+                color: $white;
+                transition: all 0.4s;
+            }
+        }
+    }
+}

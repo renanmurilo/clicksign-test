@@ -1,0 +1,62 @@
+// src/assets/styles/scss/_.scss
+@use "./colors" as *;
+@use "./typography" as *;
+@use "./medias" as *;
+
+body {
+    background-color: $background-light;
+    overflow-x: hidden;
+    @include font-primaria;
+    color: $secondary;
+}
+
+main {
+    margin: 3.75rem 2.625rem;
+
+    @include mobile {
+        margin: 2rem 1rem;
+    }
+}
+
+.breadcrumb {
+    width: 100%;
+
+    .before__page {
+        @include font-primaria;
+        color: $secondary;
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+
+        svg {
+            margin-right: 0.3rem;
+        }
+    }
+
+    .breadcrumb__h1 {
+        @include font-primaria(1.5rem, 600, 0);
+        color: $primary;
+        margin-bottom: 2.0625rem;
+    }
+}
+
+.slide-down-enter-active,
+.slide-down-leave-active {
+    transition: all 0.3s ease;
+}
+.slide-down-enter-from {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+.slide-down-enter-to {
+    transform: translateY(0);
+    opacity: 1;
+}
+.slide-down-leave-from {
+    transform: translateY(0);
+    opacity: 1;
+}
+.slide-down-leave-to {
+    transform: translateY(-100%);
+    opacity: 0;
+}

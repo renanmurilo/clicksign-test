@@ -1,0 +1,35 @@
+// src/assets/styles/scss/_medias.scss
+
+$mobileMin: "320px";
+$mobileMax: "768px";
+$tabletMin: "769px";
+$tabletMax: "1024px";
+$latpotMin: "1025px";
+$laptopMediumMin: "1280px";
+$laptopMediumMax: "1281px";
+$laptopMax: "1440px";
+$desktopLarge: "1441px";
+
+@mixin mobile {
+    @media (min-width: #{$mobileMin}) and (max-width: #{$mobileMax}) {
+        @content;
+    }
+}
+
+@mixin tablet {
+    @media (min-width: #{$tabletMin}) and (max-width: #{$tabletMax}) {
+        @content;
+    }
+}
+
+@mixin fullwidth {
+    @media (min-width: #{$desktopLarge}) {
+        @content;
+    }
+}
+
+@mixin mediaHover {
+    @media (min-width: #{$tabletMin}) {
+        @content;
+    }
+}

@@ -1,0 +1,9 @@
+// src/assets/styles/scss/main.scss
+
+@forward "_normalize";
+@forward "_global";
+@forward "_typography";
+@forward "_colors";
+@forward "_buttons";
+@forward "_mixins";
+@use "mixins" as *;
