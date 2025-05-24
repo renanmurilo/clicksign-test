@@ -2,7 +2,10 @@
 import { ref, watch } from "vue";
 import IconUpload from "@/components/icons/IconUpload.vue";
 import Trash from "@/components/icons/IconRemoveImage.vue";
+import { useImageUtils } from "@/composables/useImageUtils";
+import { getImagemUrl } from "@/services/projectService";
 
+const { extrairIdDaImagem } = useImageUtils();
 const emit = defineEmits(["update:image"]);
 
 const preview = ref<string | null>(null);
@@ -13,18 +16,24 @@ const imageFile = ref<File | null>(null);
 const props = defineProps<{
   initialUrl?: string | null;
 }>();
-console.log(props.initialUrl, "props");
 
 watch(
   () => props.initialUrl,
-  (newUrl) => {
-    if (newUrl !== null && newUrl !== undefined) {
-      preview.value = newUrl.replace("/preview", "/view");
-    } else {
+  async (newUrl) => {
+    if (imageFile.value === null && newUrl) {
+      const id = extrairIdDaImagem(newUrl);
+      const imagemValida = await getImagemUrl(id);
+
+      if (imagemValida) {
+        preview.value = imagemValida.replace("/preview", "/view");
+      } else {
+        preview.value = null;
+      }
+    } else if (!newUrl && imageFile.value === null) {
       preview.value = null;
     }
   },
-  { immediate: true, flush: "post" }
+  { immediate: true }
 );
 
 function handleFile(file: File) {
@@ -34,7 +43,8 @@ function handleFile(file: File) {
     return;
   }
 
-  preview.value = URL.createObjectURL(file);
+  const objectUrl = URL.createObjectURL(file);
+  preview.value = objectUrl;
   imageFile.value = file;
   emit("update:image", file);
 }

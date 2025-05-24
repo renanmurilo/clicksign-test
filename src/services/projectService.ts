@@ -50,7 +50,7 @@ export async function atualizarProjeto(project: Project): Promise<Project> {
     cliente: project.cliente,
     datainicio: project.datainicio,
     datafim: project.datafim,
-    imagem: extrairIdDaImagem(project.imagem),
+    imagem: project.imagem,
     favorito: project.favorito,
   };
 
@@ -61,7 +61,21 @@ export async function atualizarProjeto(project: Project): Promise<Project> {
     projectData
   );
 
-  return { $id: response.$id, ...response } as unknown as Project;
+  return response as unknown as Project;
+}
+
+export async function updateFavorito(
+  id: string,
+  dados: Partial<Project>
+): Promise<Project> {
+  const response = await databases.updateDocument(
+    DATABASE_ID,
+    COLLECTION_ID,
+    id,
+    dados
+  );
+
+  return response as unknown as Project;
 }
 
 export async function deletarProjeto(id: string): Promise<void> {

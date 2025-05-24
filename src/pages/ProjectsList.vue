@@ -27,8 +27,8 @@ function abrirModalRemocao(projeto: Project) {
 }
 
 function marcarComoFavorito(projeto: Project, favorito?: boolean) {
-  projeto.favorito = favorito ?? projeto.favorito;
-  emit("favoritoAtualizado", projeto);
+  const atualizado = { ...projeto, favorito: favorito ?? projeto.favorito };
+  emit("favoritoAtualizado", atualizado);
 }
 
 function cancelarRemocao() {
@@ -39,12 +39,16 @@ function cancelarRemocao() {
 async function confirmarRemocao() {
   if (!projetoSelecionado.value) return;
 
-  await deletarProjeto(
-    projetoSelecionado.value.$id || projetoSelecionado.value.id
-  );
+  const id = projetoSelecionado.value?.$id ?? projetoSelecionado.value?.id;
+
+  if (!id) {
+    throw new Error("ID do projeto não encontrado.");
+  }
+
+  await deletarProjeto(id);
 
   cancelarRemocao();
-  emit("projetoRemovido");
+  emit("projetoRemovido", projetoSelecionado.value);
 }
 </script>
 
@@ -52,7 +56,7 @@ async function confirmarRemocao() {
   <div class="project__list">
     <ProjectCard
       v-for="projeto in projetos"
-      :key="projeto.$id || projeto.id"
+      :key="projeto.$id"
       :project="projeto"
       :termo="termo"
       @editar="editarProjeto"
@@ -62,7 +66,7 @@ async function confirmarRemocao() {
 
     <DeleteProjectModal
       :visible="isDeleteModalOpen"
-      :projectName="projetoSelecionado?.name || ''"
+      :projectName="projetoSelecionado?.name ?? ''"
       @cancel="cancelarRemocao"
       @confirm="confirmarRemocao"
     />

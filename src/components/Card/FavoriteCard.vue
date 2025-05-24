@@ -4,6 +4,7 @@ import { useProjectStore } from "@/stores/projectStore";
 import IconFavoriteWhite from "../icons/IconFavoriteWhite.vue";
 import IconFavoriteYellow from "../icons/IconFavoriteYellow.vue";
 import type { Project } from "@/types/Project";
+import { updateFavorito } from "@/services/projectService";
 
 const props = defineProps<{
   project: Project;
@@ -18,14 +19,19 @@ const emit = defineEmits<{
 const toggleFavorite = async () => {
   isFavorited.value = !isFavorited.value;
 
-  const updatedProject = {
-    ...props.project,
-    favorito: isFavorited.value,
-  };
-
   try {
-    await projectStore.updateProject(updatedProject);
-    emit("favorito", updatedProject);
+    if (props.project.$id) {
+      await updateFavorito(props.project.$id, {
+        favorito: isFavorited.value,
+      });
+    } else {
+      console.error("Projeto sem ID!");
+    }
+
+    emit("favorito", {
+      ...props.project,
+      favorito: isFavorited.value,
+    });
   } catch (err) {
     console.error("Erro ao atualizar favorito:", err);
     isFavorited.value = !isFavorited.value;

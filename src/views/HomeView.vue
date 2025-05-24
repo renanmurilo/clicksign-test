@@ -60,26 +60,29 @@ const projetosFiltrados = computed(() => {
 
 <template>
   <main>
-    <HeaderBar
-      :totalProjetos="projetosFiltrados.length"
-      @toggleFavoritos="handleToggleFavoritos"
-      @sortChange="handleSortChange"
-    />
+    <p v-if="carregando">Carregando projetos...</p>
 
-    <div v-if="carregando">
-      <p>Carregando projetos...</p>
-    </div>
+    <template v-else-if="projetos.length === 0">
+      <ProjectEmpty />
+    </template>
 
-    <div v-else-if="projetosFiltrados.length === 0">
-      <p v-if="isFavoriteOnly">Não existem produtos favoritos.</p>
-      <ProjectEmpty v-else />
-    </div>
+    <template v-else>
+      <HeaderBar
+        :totalProjetos="projetosFiltrados.length"
+        @toggleFavoritos="handleToggleFavoritos"
+        @sortChange="handleSortChange"
+      />
 
-    <ProjectsList
-      v-else
-      :projetos="projetosFiltrados"
-      @projetoRemovido="carregarProjetos"
-      @favoritoAtualizado="atualizarProjetoFavorito"
-    />
+      <p v-if="projetosFiltrados.length === 0 && isFavoriteOnly">
+        Não existem produtos favoritos.
+      </p>
+
+      <ProjectsList
+        v-else
+        :projetos="projetosFiltrados"
+        @projetoRemovido="carregarProjetos"
+        @favoritoAtualizado="atualizarProjetoFavorito"
+      />
+    </template>
   </main>
 </template>

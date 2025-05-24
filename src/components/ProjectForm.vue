@@ -7,6 +7,7 @@ import { getImagemUrl } from "@/services/projectService";
 import type { Project } from "@/types/Project";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
+import { useImageUtils } from "@/composables/useImageUtils";
 
 interface Props {
   initialData?: Project;
@@ -53,15 +54,19 @@ const { handleSubmit, errors, meta } = useForm({
   initialValues: {
     nome: props.initialData?.name ?? "",
     cliente: props.initialData?.cliente ?? "",
-    datainicio: props.initialData?.datainicio,
-    datafim: props.initialData?.datafim,
+    datainicio: props.initialData?.datainicio
+      ? new Date(props.initialData.datainicio)
+      : null,
+    datafim: props.initialData?.datafim
+      ? new Date(props.initialData.datafim)
+      : null,
   },
 });
 
 const { value: nome } = useField<string>("nome");
 const { value: cliente } = useField<string>("cliente");
-const { value: datainicio } = useField<string>("datainicio");
-const { value: datafim } = useField<string>("datafim");
+const { value: datainicio } = useField<Date | null>("datainicio");
+const { value: datafim } = useField<Date | null>("datafim");
 
 const favorito = ref(props.initialData?.favorito ?? false);
 const imagem = ref<string>(props.initialData?.imagem ?? "");
@@ -70,24 +75,42 @@ const imagemPreview = ref<string | null>(null);
 
 const isFormValid = computed(() => meta.value.valid);
 
+const { extrairIdDaImagem } = useImageUtils();
+
 onMounted(async () => {
-  if (imagem.value && !imagem.value.startsWith("http")) {
-    imagemPreview.value = await getImagemUrl(imagem.value);
-  } else {
-    imagemPreview.value = imagem.value;
+  if (imagem.value) {
+    const id = extrairIdDaImagem(imagem.value);
+
+    if (id && !id.startsWith("http")) {
+      imagemPreview.value = await getImagemUrl(id);
+    } else {
+      imagemPreview.value = imagem.value;
+    }
+
+    imagem.value = id;
   }
 });
 
 function atualizarImagem(file: File | null) {
   imagemSelecionada.value = file;
-  if (file) imagemPreview.value = URL.createObjectURL(file);
+
+  if (file) {
+    imagemPreview.value = URL.createObjectURL(file);
+  } else {
+    imagemPreview.value = null;
+    imagem.value = "";
+  }
 }
 
 const submitForm = handleSubmit(async (values) => {
   let imagemId = imagem.value;
   if (imagemSelecionada.value) {
-    const { uploadImagem } = await import("@/services/projectService");
-    imagemId = await uploadImagem(imagemSelecionada.value);
+    try {
+      const { uploadImagem } = await import("@/services/projectService");
+      imagemId = await uploadImagem(imagemSelecionada.value);
+    } catch (e) {
+      console.error("Erro ao enviar imagem:", e);
+    }
   }
 
   const project: Project = {
@@ -95,8 +118,8 @@ const submitForm = handleSubmit(async (values) => {
     id: props.initialData?.id ?? Date.now().toString(),
     name: values.nome,
     cliente: values.cliente,
-    datainicio: values.datainicio,
-    datafim: values.datafim,
+    datainicio: values.datainicio?.toISOString() ?? "",
+    datafim: values.datafim?.toISOString() ?? "",
     favorito: favorito.value,
     imagem: imagemId,
   };

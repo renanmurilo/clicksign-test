@@ -33,13 +33,11 @@ function carregarProjetos(): void {
   });
 }
 
-function atualizarProjetoFavorito(projetoAtualizado: {
-  $id?: string;
-  id?: string;
-  favorito: boolean;
-}): void {
-  const id = projetoAtualizado.$id || projetoAtualizado.id;
-  const index = resultados.value.findIndex((p) => (p.$id || p.id) === id);
+function atualizarProjetoFavorito(projetoAtualizado: Project) {
+  const index = resultados.value.findIndex(
+    (p) => (p.$id || p.id) === (projetoAtualizado.$id || projetoAtualizado.id)
+  );
+
   if (index !== -1) {
     resultados.value[index].favorito = projetoAtualizado.favorito;
   }

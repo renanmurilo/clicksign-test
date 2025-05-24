@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineEmits, onMounted, ref } from "vue";
+import { computed, defineEmits } from "vue";
 import IconCalendarInit from "../icons/IconCalendarInit.vue";
 import IconCalendarFinish from "../icons/IconCalendarFinish.vue";
 import FavoriteCard from "@/components/Card/FavoriteCard.vue";
@@ -8,45 +8,46 @@ import type { Project } from "@/types/Project";
 import { useDateFormat } from "@/composables/useDateFormat";
 import { getImagemUrl } from "@/services/projectService";
 import { useHighlight } from "@/composables/useHighlight";
+import { useImageUtils } from "@/composables/useImageUtils";
 
 const { highlight } = useHighlight();
-
 const { formatDate } = useDateFormat();
+const { extrairIdDaImagem } = useImageUtils();
 
 const props = defineProps<{
   project: Project;
   termo?: string;
 }>();
 
-const imagemPreview = ref<string | null>(null);
+const imagemUrl = computed(() => {
+  const img = props.project?.imagem;
 
-onMounted(async () => {
-  if (props?.project?.imagem) {
-    if (!props?.project?.imagem.startsWith("http")) {
-      imagemPreview.value = await getImagemUrl(props?.project?.imagem);
-    } else {
-      imagemPreview.value = props?.project?.imagem;
-    }
+  if (!img) return "";
+
+  if (img.startsWith("http")) {
+    const id = extrairIdDaImagem(img);
+    if (!id) return "";
+    return img.replace("/preview", "/view");
   }
+
+  if (img.length > 10) {
+    return getImagemUrl(img);
+  }
+
+  return "";
 });
 
 const emit = defineEmits<{
   (e: "editar", project: Project): void;
   (e: "remover", project: Project): void;
+  (e: "favorito", project: Project): void;
 }>();
 </script>
 
 <template>
   <div class="card">
     <div class="card__image">
-      <img
-        :src="
-          project.imagem
-            ? project.imagem.replace('/preview', '/view')
-            : '@/assets/images/banner-capa.png'
-        "
-        :alt="project.name"
-      />
+      <img :src="imagemUrl || ''" :alt="project.name" />
 
       <FavoriteCard :project="project" @favorito="emit('favorito', $event)" />
 
